@@ -4,10 +4,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-bot = Bot(token=os.getenv("TOKEN"))
+API_TOKEN = os.getenv("TOKEN")
 
 channel_id = '@picspace'
 
-message = 'Привет! Это сообщение от бота.'
+bot = Bot(token=API_TOKEN)
 
-bot.send_message(chat_id=channel_id, text=message)
+photo_path = '/Users/evgenijkondratev/Desktop/api4/nasa_apod_images/apod_image_3.jpg'
+
+bot.send_photo(chat_id=channel_id, photo=open(photo_path, 'rb'))
