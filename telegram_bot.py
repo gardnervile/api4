@@ -1,7 +1,10 @@
 from telegram import Bot
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
-bot = Bot(token='8120078854:AAEHrDMF6tjno7si_qbdH_HdaKEfPObxV4A')
+bot = Bot(token=os.getenv("TOKEN"))
 
 channel_id = '@picspace'
 
