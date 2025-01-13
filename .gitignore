@@ -2,5 +2,8 @@
 .env
 .gitattributes
 __pycache__/
-.bin
-.lib
+bin/
+
+lib/python3.12/site-packages/
+
+pyvenv.cfg
