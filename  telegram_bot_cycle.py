@@ -5,35 +5,23 @@ import argparse
 from telegram import Bot
 from dotenv import load_dotenv
 from PIL import Image
+from tg_utils import send_photo_to_channel, get_images_from_directory
 
 
-load_dotenv()
-
-
-API_TOKEN = os.getenv("TOKEN")
+API_TOKEN = os.getenv["TG_TOKEN"]
 bot = Bot(token=API_TOKEN)
 
-
-CHANNEL_ID = '@picspace'
-
-
-def send_photo(photo_path):
-    with open(photo_path, 'rb') as photo:
-        bot.send_photo(chat_id=CHANNEL_ID, photo=photo)
+CHANNEL_ID = os.environ["TG_CHANNEL_ID"]
 
 
 def compress_image(image_path, max_size=20 * 1024 * 1024):
     image = Image.open(image_path)
     if os.path.getsize(image_path) > max_size:
         image = image.convert("RGB")
-        compressed_path = "compressed_" + os.path.basename(image_path)
+        compressed_path = f"compressed_{os.path.basename(image_path)}"
         image.save(compressed_path, optimize=True, quality=85)
         return compressed_path
     return image_path
-
-
-def get_images_from_directory(directory):
-    return [f for f in os.listdir(directory) if f.lower().endswith(('jpg', 'jpeg', 'png', 'gif'))]
 
 
 def main(directory, interval):
@@ -51,13 +39,14 @@ def main(directory, interval):
         
         photo_path = compress_image(photo_path)
 
-        send_photo(photo_path)
+        send_photo_to_channel(bot, photo_path, CHANNEL_ID)
 
         print(f"Ждем {interval} секунд...")
         time.sleep(interval)
 
 
 if __name__ == "__main__":
+    load_dotenv()
     parser = argparse.ArgumentParser(description="Публикация фотографий в Telegram канал.")
     parser.add_argument("directory", help="Путь к директории с изображениями")
     parser.add_argument("-i", "--interval", type=int, default=int(os.getenv("PUBLISH_INTERVAL", 4 * 3600)), 

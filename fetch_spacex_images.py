@@ -1,12 +1,12 @@
 import argparse
 import requests
 import os
-from main import create_folder, download_image, get_file_extension
+from utils import create_folder, download_image, get_file_extension
 
 def fetch_spacex_images(launch_id=None, folder_name="spacex_images"):
     create_folder(folder_name)
     url = "https://api.spacexdata.com/v5/launches"
-    url += f"/{launch_id}" if launch_id else "/latest"
+    url = f"https://api.spacexdata.com/v5/launches/{launch_id}" if launch_id else "https://api.spacexdata.com/v5/launches/latest"
     
     try:
         response = requests.get(url)

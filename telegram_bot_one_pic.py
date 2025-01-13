@@ -2,40 +2,42 @@ import os
 import random
 from telegram import Bot
 from dotenv import load_dotenv
-
-
-load_dotenv()
-
-
-API_TOKEN = os.getenv("TOKEN")
-CHANNEL_ID = '@picspace'
-
-
-bot = Bot(token=API_TOKEN)
+import argparse
+from tg_utils import send_photo_to_channel, get_images_from_directory
 
 def publish_photo(directory, photo=None):
+    API_TOKEN = os.environ["TG_TOKEN"]
+    CHANNEL_ID = os.environ["TG_CHANNEL_ID"]
+
+    bot = Bot(token=API_TOKEN)
+    
     if not photo:
-        photos = [file for file in os.listdir(directory) if file.endswith(('.jpg', '.jpeg', '.png'))]
+        photos = get_images_from_directory(directory)
         if not photos:
-            print("В директории нет фотографий для публикации.")
-            return
+            raise FileNotFoundError("В директории нет фотографий для публикации.")
         photo = random.choice(photos)
     
     photo_path = os.path.join(directory, photo)
-    try:
-        with open(photo_path, 'rb') as file:
-            bot.send_photo(chat_id=CHANNEL_ID, photo=file)
-        print(f"Фотография '{photo}' успешно опубликована!")
-    except Exception as e:
-        print(f"Ошибка при публикации фотографии '{photo}': {e}")
+    send_photo_to_channel(bot, photo_path, CHANNEL_ID)
+
+def handle_publish_error(e, photo=None):
+    if isinstance(e, FileNotFoundError):
+        print(f"Ошибка: Файл '{photo}' не найден.")
+    elif isinstance(e, IsADirectoryError):
+        print(f"Ошибка: '{photo}' является директорией, а не файлом.")
+    elif isinstance(e, PermissionError):
+        print(f"Ошибка: Нет прав на чтение файла '{photo}'.")
 
 if __name__ == "__main__":
-    import argparse
-
+    load_dotenv()
     parser = argparse.ArgumentParser(description="Публикация фотографий в Telegram-канал.")
     parser.add_argument("directory", help="Директория с фотографиями.")
     parser.add_argument("-p", "--photo", help="Название фотографии для публикации.", default=None)
 
     args = parser.parse_args()
 
-    publish_photo(args.directory, args.photo)
+    try:
+        publish_photo(args.directory, args.photo)
+        print(f"Фотография '{args.photo}' успешно опубликована!")
+    except (FileNotFoundError, IsADirectoryError, PermissionError) as e:
+        handle_publish_error(e, args.photo)

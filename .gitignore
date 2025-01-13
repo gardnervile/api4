@@ -2,3 +2,5 @@
 .env
 .gitattributes
 __pycache__/
+.bin
+.lib
