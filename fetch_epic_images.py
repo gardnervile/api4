@@ -8,7 +8,7 @@ from urllib.parse import urlencode
 
 
 def fetch_epic_images(max_photos=10, folder_name="nasa_epic_images"):
-    NASA_API_KEY = os.environ["NASA_API_KEY"]
+    
     create_folder(folder_name)
     
     base_url = "https://api.nasa.gov/EPIC/api/natural/images"
@@ -37,6 +37,7 @@ def fetch_epic_images(max_photos=10, folder_name="nasa_epic_images"):
 
 if __name__ == "__main__":
     load_dotenv()
+    NASA_API_KEY = os.environ["NASA_API_KEY"]
     parser = argparse.ArgumentParser(description="Скачивание фотографий NASA EPIC.")
     parser.add_argument("--max_photos", type=int, default=10, help="Максимальное количество фотографий.")
     args = parser.parse_args()
