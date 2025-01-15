@@ -44,11 +44,11 @@ python telegram_bot.py /path/to/images -i 14400
 ```
 python3 telegram_bot_one_pic.py /path/to/photo.jpg
 ```
-- отправка конкретной фотографии
+-отправка конкретной фотографии
 ```
 python3 telegram_bot_one_pic.py /path/to/directory
 ```
-- отправка случайной фотографии из директории
+-отправка случайной фотографии из директории
 
 ## Для работы скриптов потребуется установить следующие библиотеки:
 ```
@@ -59,7 +59,8 @@ pip install -r requirements.txt
 Скрипт требует настройки переменной окружения для API-токена Telegram:
 
 ```
-TOKEN="your_telegram_bot_token"
+TG_TOKEN=your_telegram_bot_token
+TG_CHANNEL_ID=@your_tg_channel
 NASA_API_KEY=your_api_key
 PUBLISH_INTERVAL=14400 
 ```
