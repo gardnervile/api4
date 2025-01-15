@@ -60,7 +60,7 @@ pip install -r requirements.txt
 
 ```
 TG_TOKEN=your_telegram_bot_token
-TG_CHANNEL_ID=@your_tg_channel
+TG_CHANNEL_ID=@your_channel_name
 NASA_API_KEY=your_api_key
 PUBLISH_INTERVAL=14400 
 ```
