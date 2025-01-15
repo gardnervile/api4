@@ -18,37 +18,38 @@ def compress_image(image_path, max_size=20 * 1024 * 1024):
     return image_path
 
 
-def main(directory, interval):
+def main():
+    load_dotenv()
+    api_token = os.environ["TG_TOKEN"]
+    chanel_id = os.environ["TG_CHANNEL_ID"]
+
+    parser = argparse.ArgumentParser(description="Публикация фотографий в Telegram канал.")
+    parser.add_argument("directory", help="Путь к директории с изображениями")
+    parser.add_argument("-i", "--interval", type=int, default=int(os.getenv("PUBLISH_INTERVAL", 4 * 3600)),
+                        help="Задержка между публикациями в секундах (по умолчанию 4 часа)")
+
+    args = parser.parse_args()
+
     bot = Bot(token=api_token)
-    images = get_images_from_directory(directory)
+    images = get_images_from_directory(args.directory)
     random.shuffle(images)
 
     while True:
         if not images:
             print("Все изображения опубликованы, перемешиваем заново...")
-            images = get_images_from_directory(directory)
+            images = get_images_from_directory(args.directory)
             random.shuffle(images)
 
-        photo_path = os.path.join(directory, images.pop(0))
+        photo_path = os.path.join(args.directory, images.pop(0))
         print(f"Публикуем фото: {photo_path}")
         
         photo_path = compress_image(photo_path)
 
         send_photo_to_channel(bot, photo_path, chanel_id)
 
-        print(f"Ждем {interval} секунд...")
-        time.sleep(interval)
+        print(f"Ждем {args.interval} секунд...")
+        time.sleep(args.interval)
 
 
-if __name__ == "__main__":
-    load_dotenv()
-    api_token = os.environ["TG_TOKEN"]
-    chanel_id = os.environ["TG_CHANNEL_ID"]
-    
-    parser = argparse.ArgumentParser(description="Публикация фотографий в Telegram канал.")
-    parser.add_argument("directory", help="Путь к директории с изображениями")
-    parser.add_argument("-i", "--interval", type=int, default=int(os.getenv("PUBLISH_INTERVAL", 4 * 3600)), 
-                        help="Задержка между публикациями в секундах (по умолчанию 4 часа)")
-
-    args = parser.parse_args()
-    main(args.directory, args.interval)
+if __name__ == '__main__':
+    main()
