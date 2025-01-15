@@ -4,11 +4,9 @@ import requests
 from utils import create_folder, download_image
 from dotenv import load_dotenv
 from datetime import datetime
-from urllib.parse import urlencode
 
 
 def fetch_epic_images(max_photos=10, folder_name="nasa_epic_images"):
-    
     create_folder(folder_name)
     
     base_url = "https://api.nasa.gov/EPIC/api/natural/images"
@@ -30,10 +28,9 @@ def fetch_epic_images(max_photos=10, folder_name="nasa_epic_images"):
 
         image_name = item["image"]
         image_url = f"https://api.nasa.gov/EPIC/archive/natural/{year}/{month:02}/{day:02}/png/{image_name}.png"
-        image_url_with_params = f"{image_url}?{urlencode(params)}"
         
         file_name = os.path.join(folder_name, f"epic_image_{i}.png")
-        download_image(image_url_with_params, file_name)
+        download_image(image_url, file_name, params=params)
 
 if __name__ == "__main__":
     load_dotenv()
