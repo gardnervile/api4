@@ -8,12 +8,6 @@ from PIL import Image
 from tg_utils import send_photo_to_channel, get_images_from_directory
 
 
-
-
-
-
-
-
 def compress_image(image_path, max_size=20 * 1024 * 1024):
     image = Image.open(image_path)
     if os.path.getsize(image_path) > max_size:
@@ -25,6 +19,7 @@ def compress_image(image_path, max_size=20 * 1024 * 1024):
 
 
 def main(directory, interval):
+    bot = Bot(token=api_token)
     images = get_images_from_directory(directory)
     random.shuffle(images)
 
@@ -39,7 +34,7 @@ def main(directory, interval):
         
         photo_path = compress_image(photo_path)
 
-        send_photo_to_channel(bot, photo_path, CHANNEL_ID)
+        send_photo_to_channel(bot, photo_path, chanel_id)
 
         print(f"Ждем {interval} секунд...")
         time.sleep(interval)
@@ -47,9 +42,9 @@ def main(directory, interval):
 
 if __name__ == "__main__":
     load_dotenv()
-    API_TOKEN = os.getenv["TG_TOKEN"]
-    CHANNEL_ID = os.environ["TG_CHANNEL_ID"]
-    bot = Bot(token=API_TOKEN)
+    api_token = os.environ["TG_TOKEN"]
+    chanel_id = os.environ["TG_CHANNEL_ID"]
+    
     parser = argparse.ArgumentParser(description="Публикация фотографий в Telegram канал.")
     parser.add_argument("directory", help="Путь к директории с изображениями")
     parser.add_argument("-i", "--interval", type=int, default=int(os.getenv("PUBLISH_INTERVAL", 4 * 3600)), 
