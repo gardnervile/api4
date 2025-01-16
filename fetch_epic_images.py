@@ -30,11 +30,13 @@ def fetch_epic_images(max_photos=10, folder_name="nasa_epic_images"):
         image_url = f"https://api.nasa.gov/EPIC/archive/natural/{year}/{month:02}/{day:02}/png/{image_name}.png"
         
         file_name = os.path.join(folder_name, f"epic_image_{i}.png")
-        download_image(image_url, file_name, params=params)
+        
+        download_image(image_url, file_name)
 
 if __name__ == "__main__":
     load_dotenv()
     nasa_api_key = os.environ["NASA_API_KEY"]
+
     parser = argparse.ArgumentParser(description="Скачивание фотографий NASA EPIC.")
     parser.add_argument("--max_photos", type=int, default=10, help="Максимальное количество фотографий.")
     args = parser.parse_args()
