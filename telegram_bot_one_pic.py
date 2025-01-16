@@ -1,21 +1,27 @@
 import os
 import random
+import asyncio
 from telegram import Bot
 from dotenv import load_dotenv
 import argparse
 from tg_utils import send_photo_to_channel, get_images_from_directory
 
-def publish_photo(directory, photo=None)
+async def publish_photo(directory, photo=None):
     bot = Bot(token=api_token)
     
-    if not photo:
+    if photo:
+        photo_path = os.path.join(directory, photo)
+        if not os.path.isfile(photo_path):
+            raise FileNotFoundError(f"Файл '{photo}' не найден в директории '{directory}'.")
+    else:
+        if not os.path.isdir(directory):
+            raise NotADirectoryError(f"'{directory}' не является директорией.")
         photos = get_images_from_directory(directory)
         if not photos:
             raise FileNotFoundError("В директории нет фотографий для публикации.")
-        photo = random.choice(photos)
-    
-    photo_path = os.path.join(directory, photo)
-    send_photo_to_channel(bot, photo_path, channel_id)
+        photo_path = os.path.join(directory, random.choice(photos))
+
+    await bot.send_photo(chat_id=channel_id, photo=open(photo_path, 'rb'))
 
 def handle_publish_error(e, photo=None):
     if isinstance(e, FileNotFoundError):
@@ -24,11 +30,15 @@ def handle_publish_error(e, photo=None):
         print(f"Ошибка: '{photo}' является директорией, а не файлом.")
     elif isinstance(e, PermissionError):
         print(f"Ошибка: Нет прав на чтение файла '{photo}'.")
+    elif isinstance(e, NotADirectoryError):
+        print(f"Ошибка: '{photo}' не является директорией.")
 
-if __name__ == "__main__":
+async def main():
     load_dotenv()
+    global api_token, channel_id
     api_token = os.environ["TG_TOKEN"]
     channel_id = os.environ["TG_CHANNEL_ID"]
+    
     parser = argparse.ArgumentParser(description="Публикация фотографий в Telegram-канал.")
     parser.add_argument("directory", help="Директория с фотографиями.")
     parser.add_argument("-p", "--photo", help="Название фотографии для публикации.", default=None)
@@ -36,7 +46,16 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     try:
-        publish_photo(args.directory, args.photo)
+        if args.photo:
+            print(f"Публикуем файл: {args.photo}")
+        else:
+            print(f"Публикуем случайную фотографию из директории: {args.directory}")
+        
+        await publish_photo(args.directory, args.photo)
         print(f"Фотография '{args.photo}' успешно опубликована!")
-    except (FileNotFoundError, IsADirectoryError, PermissionError) as e:
+    except (FileNotFoundError, IsADirectoryError, PermissionError, NotADirectoryError) as e:
         handle_publish_error(e, args.photo)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
