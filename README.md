@@ -28,13 +28,13 @@ python3 fetch_epic_images.py
 ```
 python3 fetch_spacex_images.py --id <launch_id>
 ```
-- telegram_bot.py
+- telegram_bot_cycle.py
 
-Скрипт для создания бота в Telegram, который публикует изображения в канал.
+Скрипт для создания бота в Telegram, который автоматически публикует изображения в канал с интервалом 4 часа.
 
 Использование:
 ```
-python telegram_bot.py /path/to/images -i 14400
+python telegram_bot_cycle.py /path/to/images -i 14400
 ```
 - telegram_bot_one_pic.py
 
