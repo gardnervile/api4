@@ -3,8 +3,7 @@ import requests
 from urllib.parse import urlsplit, unquote
 
 def create_folder(folder_name):
-    if not os.path.exists(folder_name):
-        os.makedirs(folder_name)
+    os.makedirs(folder_name, exist_ok=True)
 
 def get_file_extension(url):
     path = urlsplit(url).path
@@ -24,9 +23,9 @@ def download_image(image_url, save_path):
 if __name__ == "__main__":
     image_url = "https://example.com/image.png"
     save_path = "images/image.png"
-    
+
     create_folder(os.path.dirname(save_path))
-    
+   
     try:
         download_image(image_url, save_path)
     except requests.exceptions.RequestException as e:
