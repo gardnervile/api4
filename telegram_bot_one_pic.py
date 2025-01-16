@@ -6,7 +6,7 @@ import argparse
 from tg_utils import send_photo_to_channel, get_images_from_directory
 
 def publish_photo(directory, photo=None)
-    bot = Bot(token=API_TOKEN)
+    bot = Bot(token=api_token)
     
     if not photo:
         photos = get_images_from_directory(directory)
@@ -15,7 +15,7 @@ def publish_photo(directory, photo=None)
         photo = random.choice(photos)
     
     photo_path = os.path.join(directory, photo)
-    send_photo_to_channel(bot, photo_path, CHANNEL_ID)
+    send_photo_to_channel(bot, photo_path, channel_id)
 
 def handle_publish_error(e, photo=None):
     if isinstance(e, FileNotFoundError):
@@ -27,8 +27,8 @@ def handle_publish_error(e, photo=None):
 
 if __name__ == "__main__":
     load_dotenv()
-    API_TOKEN = os.environ["TG_TOKEN"]
-    CHANNEL_ID = os.environ["TG_CHANNEL_ID"]
+    api_token = os.environ["TG_TOKEN"]
+    channel_id = os.environ["TG_CHANNEL_ID"]
     parser = argparse.ArgumentParser(description="Публикация фотографий в Telegram-канал.")
     parser.add_argument("directory", help="Директория с фотографиями.")
     parser.add_argument("-p", "--photo", help="Название фотографии для публикации.", default=None)

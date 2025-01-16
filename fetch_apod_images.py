@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 def fetch_apod_images(count=30, folder_name="nasa_apod_images"):
     create_folder(folder_name)
     url = "https://api.nasa.gov/planetary/apod"
-    params = {"api_key": NASA_API_KEY, "count": count}
+    params = {"api_key": nasa_api_key, "count": count}
     
     response = requests.get(url, params=params)
     response.raise_for_status()
@@ -23,7 +23,7 @@ def fetch_apod_images(count=30, folder_name="nasa_apod_images"):
 
 if __name__ == "__main__":
     load_dotenv()
-    NASA_API_KEY = os.environ["NASA_API_KEY"]
+    nasa_api_key = os.environ["NASA_API_KEY"]
     parser = argparse.ArgumentParser(description="Скачивание фотографий NASA APOD.")
     parser.add_argument("--count", type=int, default=30, help="Количество фотографий для скачивания.")
     args = parser.parse_args()
