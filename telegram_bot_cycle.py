@@ -6,6 +6,8 @@ from telegram import Bot
 from dotenv import load_dotenv
 from PIL import Image
 from tg_utils import send_photo_to_channel, get_images_from_directory
+import requests
+from telegram.error import NetworkError
 
 
 def compress_image(image_path, max_size=20 * 1024 * 1024):
@@ -45,7 +47,14 @@ def main():
         
         photo_path = compress_image(photo_path)
 
-        send_photo_to_channel(bot, photo_path, chanel_id)
+        while True:
+            try:
+                send_photo_to_channel(bot, photo_path, chanel_id)
+                print(f"Фото {photo_path} успешно опубликовано!")
+                break
+            except (requests.exceptions.ConnectionError, NetworkError) as e:
+                print(f"Ошибка при публикации фото: {e}. Повторная попытка через 10 секунд.")
+                time.sleep(10)
 
         print(f"Ждем {args.interval} секунд...")
         time.sleep(args.interval)
