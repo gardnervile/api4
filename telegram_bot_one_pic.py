@@ -7,7 +7,9 @@ import argparse
 from tg_utils import send_photo_to_channel, get_images_from_directory
 
 
-async def publish_photo(directory, photo=None):
+async def publish_photo(directory, photo=None, get_credentials=None):
+    api_token, channel_id = get_credentials()
+
     bot = Bot(token=api_token)
     
     if photo:
@@ -36,9 +38,8 @@ def handle_publish_error(e, photo=None):
 
 async def main():
     load_dotenv()
-    global api_token, channel_id
-    api_token = os.environ["TG_TOKEN"]
-    channel_id = os.environ["TG_CHANNEL_ID"]
+
+    get_credentials = lambda: (os.environ["TG_TOKEN"], os.environ["TG_CHANNEL_ID"])
     
     parser = argparse.ArgumentParser(description="Публикация фотографий в Telegram-канал.")
     parser.add_argument("directory", help="Директория с фотографиями.")
@@ -52,7 +53,7 @@ async def main():
         else:
             print(f"Публикуем случайную фотографию из директории: {args.directory}")
         
-        await publish_photo(args.directory, args.photo)
+        await publish_photo(args.directory, args.photo, get_credentials=get_credentials)
         print(f"Фотография '{args.photo}' успешно опубликована!")
     except (FileNotFoundError, IsADirectoryError, PermissionError, NotADirectoryError) as e:
         handle_publish_error(e, args.photo)
