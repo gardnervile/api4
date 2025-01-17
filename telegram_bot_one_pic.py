@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import argparse
 from tg_utils import send_photo_to_channel, get_images_from_directory
 
+
 async def publish_photo(directory, photo=None):
     bot = Bot(token=api_token)
     
