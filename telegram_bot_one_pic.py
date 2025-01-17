@@ -23,9 +23,10 @@ async def publish_photo(directory, photo=None, get_credentials=None):
         if not photos:
             raise FileNotFoundError("В директории нет фотографий для публикации.")
         photo_path = os.path.join(directory, random.choice(photos))
+    with open(photo_path, 'rb') as photo_file:
+        await bot.send_photo(chat_id=channel_id, photo=photo_file)
 
-    await bot.send_photo(chat_id=channel_id, photo=open(photo_path, 'rb'))
-
+        
 def handle_publish_error(e, photo=None):
     if isinstance(e, FileNotFoundError):
         print(f"Ошибка: Файл '{photo}' не найден.")
