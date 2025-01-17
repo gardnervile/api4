@@ -1,21 +1,18 @@
 import os
 import random
-import asyncio
+import argparse
 from telegram import Bot
 from dotenv import load_dotenv
-import argparse
-from tg_utils import send_photo_to_channel, get_images_from_directory
+from tg_utils import get_images_from_directory
 
 
-async def publish_photo(directory, photo=None, get_credentials=None):
-    api_token, channel_id = get_credentials()
-
+def publish_photo(directory, photo=None, api_token=None, channel_id=None):
     bot = Bot(token=api_token)
     
     if photo:
-        photo_path = os.path.join(directory, photo)
+        photo_path = photo
         if not os.path.isfile(photo_path):
-            raise FileNotFoundError(f"Файл '{photo}' не найден в директории '{directory}'.")
+            raise FileNotFoundError(f"Файл '{photo}' не найден.")
     else:
         if not os.path.isdir(directory):
             raise NotADirectoryError(f"'{directory}' не является директорией.")
@@ -23,42 +20,53 @@ async def publish_photo(directory, photo=None, get_credentials=None):
         if not photos:
             raise FileNotFoundError("В директории нет фотографий для публикации.")
         photo_path = os.path.join(directory, random.choice(photos))
-    with open(photo_path, 'rb') as photo_file:
-        await bot.send_photo(chat_id=channel_id, photo=photo_file)
 
-        
+    with open(photo_path, 'rb') as photo_file:
+        bot.send_photo(chat_id=channel_id, photo=photo_file)
+    
+    return os.path.basename(photo_path)
+
+
 def handle_publish_error(e, photo=None):
     if isinstance(e, FileNotFoundError):
-        print(f"Ошибка: Файл '{photo}' не найден.")
-    elif isinstance(e, IsADirectoryError):
-        print(f"Ошибка: '{photo}' является директорией, а не файлом.")
+        print(f"Ошибка: {str(e)}")
+    elif isinstance(e, NotADirectoryError):
+        print(f"Ошибка: {str(e)}")
     elif isinstance(e, PermissionError):
         print(f"Ошибка: Нет прав на чтение файла '{photo}'.")
-    elif isinstance(e, NotADirectoryError):
-        print(f"Ошибка: '{photo}' не является директорией.")
 
-async def main():
+
+def main():
     load_dotenv()
-
-    get_credentials = lambda: (os.environ["TG_TOKEN"], os.environ["TG_CHANNEL_ID"])
+    api_token = os.environ["TG_TOKEN"]
+    channel_id = os.environ["TG_CHANNEL_ID"]
     
     parser = argparse.ArgumentParser(description="Публикация фотографий в Telegram-канал.")
-    parser.add_argument("directory", help="Директория с фотографиями.")
+    parser.add_argument("path", help="Путь к фотографии или директории.")
     parser.add_argument("-p", "--photo", help="Название фотографии для публикации.", default=None)
 
     args = parser.parse_args()
 
+    if os.path.isfile(args.path):
+        directory = os.path.dirname(args.path)
+        photo = args.path
+    else:
+        directory = args.path
+        photo = args.photo
+
     try:
-        if args.photo:
-            print(f"Публикуем файл: {args.photo}")
-        else:
-            print(f"Публикуем случайную фотографию из директории: {args.directory}")
+        publish_photo_lambda = lambda: publish_photo(directory, photo, api_token=api_token, channel_id=channel_id)
         
-        await publish_photo(args.directory, args.photo, get_credentials=get_credentials)
-        print(f"Фотография '{args.photo}' успешно опубликована!")
-    except (FileNotFoundError, IsADirectoryError, PermissionError, NotADirectoryError) as e:
-        handle_publish_error(e, args.photo)
+        if photo:
+            print(f"Публикуем файл: {photo}")
+        else:
+            print(f"Публикуем случайную фотографию из директории: {directory}")
+        
+        published_photo = publish_photo_lambda()
+        print(f"Фотография '{published_photo}' успешно опубликована!")
+    except (FileNotFoundError, NotADirectoryError, PermissionError) as e:
+        handle_publish_error(e, photo)
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
