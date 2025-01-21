@@ -3,7 +3,7 @@ import random
 import argparse
 from telegram import Bot
 from dotenv import load_dotenv
-from tg_utils import get_images_from_directory
+from tg_utils import get_images_from_directory, send_photo_to_channel
 
 
 def publish_photo(directory, photo=None, api_token=None, channel_id=None):
@@ -21,9 +21,7 @@ def publish_photo(directory, photo=None, api_token=None, channel_id=None):
             raise FileNotFoundError("В директории нет фотографий для публикации.")
         photo_path = os.path.join(directory, random.choice(photos))
 
-    with open(photo_path, 'rb') as photo_file:
-        bot.send_photo(chat_id=channel_id, photo=photo_file)
-    
+    send_photo_to_channel(bot, photo_path, channel_id)
     return os.path.basename(photo_path)
 
 
