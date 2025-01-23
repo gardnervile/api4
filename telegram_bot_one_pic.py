@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from tg_utils import get_images_from_directory, send_photo_to_channel
 
 
-def publish_photo(bot, directory, photo=None, channel_id=None):
+def publish_photo(bot, directory, photo=None, channel_id):
     if photo:
         photo_path = photo
     else:
@@ -17,7 +17,6 @@ def publish_photo(bot, directory, photo=None, channel_id=None):
 
     send_photo_to_channel(bot, photo_path, channel_id)
     return os.path.basename(photo_path)
-
 
 
 def handle_publish_error(e, photo=None):
@@ -34,8 +33,10 @@ def main():
     api_token = os.getenv("TG_TOKEN")
     channel_id = os.getenv("TG_CHANNEL_ID")
     
-    if not api_token or not channel_id:
-        raise ValueError("TG_TOKEN и TG_CHANNEL_ID должны быть установлены в переменных окружения.")
+    if not api_token:
+        raise ValueError("TG_TOKEN должен быть установлен в переменных окружения.")
+    if not channel_id:
+        raise ValueError("TG_CHANNEL_ID должен быть установлен в переменных окружения.")
     
     parser = argparse.ArgumentParser(description="Публикация фотографий в Telegram-канал.")
     parser.add_argument("path", help="Путь к фотографии или директории.")
@@ -60,7 +61,6 @@ def main():
         print(f"Фотография '{published_photo}' успешно опубликована!")
     except (FileNotFoundError, NotADirectoryError, PermissionError) as e:
         handle_publish_error(e, photo)
-
 
 
 if __name__ == "__main__":
