@@ -1,9 +1,12 @@
 import os
 import requests
 from urllib.parse import urlsplit, unquote
+from pathlib import Path
+
 
 def create_folder(folder_name):
     os.makedirs(folder_name, exist_ok=True)
+
 
 def get_file_extension(url):
     path = urlsplit(url).path
@@ -11,9 +14,11 @@ def get_file_extension(url):
     _, file_extension = os.path.splitext(os.path.split(decoded_path)[1])
     return file_extension
 
+
 def download_image(image_url, save_path):
     response = requests.get(image_url, stream=True)
     response.raise_for_status()
+    
     with open(save_path, "wb") as file:
         for chunk in response.iter_content(chunk_size=8192):
             file.write(chunk)
@@ -22,10 +27,12 @@ def download_image(image_url, save_path):
 
 if __name__ == "__main__":
     image_url = "https://example.com/image.png"
-    save_path = "images/image.png"
 
-    create_folder(os.path.dirname(save_path))
-   
+    save_dir = Path("images")
+    save_path = save_dir / "image.png"
+
+    create_folder(save_dir)
+
     try:
         download_image(image_url, save_path)
     except requests.exceptions.RequestException as e:
