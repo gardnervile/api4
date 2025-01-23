@@ -11,14 +11,14 @@ from telegram.error import NetworkError
 
 
 def compress_image(image_path, max_size=20 * 1024 * 1024):
-    image = Image.open(image_path)
-    if os.path.getsize(image_path) <= max_size:
-        return image_path
+    with Image.open(image_path) as image:
+        if os.path.getsize(image_path) <= max_size:
+            return image_path
 
-    image = image.convert("RGB")
-    compressed_path = f"compressed_{os.path.basename(image_path)}"
-    image.save(compressed_path, optimize=True, quality=85)
-    return compressed_path
+        image = image.convert("RGB")
+        compressed_path = f"compressed_{os.path.basename(image_path)}"
+        image.save(compressed_path, optimize=True, quality=85)
+        return compressed_path
 
 
 def main():
