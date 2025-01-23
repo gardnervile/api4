@@ -12,18 +12,19 @@ from telegram.error import NetworkError
 
 def compress_image(image_path, max_size=20 * 1024 * 1024):
     image = Image.open(image_path)
-    if os.path.getsize(image_path) > max_size:
-        image = image.convert("RGB")
-        compressed_path = f"compressed_{os.path.basename(image_path)}"
-        image.save(compressed_path, optimize=True, quality=85)
-        return compressed_path
-    return image_path
+    if os.path.getsize(image_path) <= max_size:
+        return image_path
+
+    image = image.convert("RGB")
+    compressed_path = f"compressed_{os.path.basename(image_path)}"
+    image.save(compressed_path, optimize=True, quality=85)
+    return compressed_path
 
 
 def main():
     load_dotenv()
     api_token = os.environ["TG_TOKEN"]
-    chanel_id = os.environ["TG_CHANNEL_ID"]
+    channel_id = os.environ["TG_CHANNEL_ID"]
 
     parser = argparse.ArgumentParser(description="Публикация фотографий в Telegram канал.")
     parser.add_argument("directory", help="Путь к директории с изображениями")
@@ -49,7 +50,7 @@ def main():
 
         while True:
             try:
-                send_photo_to_channel(bot, photo_path, chanel_id)
+                send_photo_to_channel(bot, photo_path, channel_id)
                 print(f"Фото {photo_path} успешно опубликовано!")
                 break
             except (requests.exceptions.ConnectionError, NetworkError) as e:
