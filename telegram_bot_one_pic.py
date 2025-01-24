@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from tg_utils import get_images_from_directory, send_photo_to_channel
 
 
-def publish_photo(bot, directory, photo=None, channel_id):
+def publish_photo(bot, directory, channel_id, photo=None):
     if photo:
         photo_path = photo
     else:
